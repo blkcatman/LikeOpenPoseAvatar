@@ -1,0 +1,16 @@
+{
+    "name": "jp.blkcatman.LikeOpenPoseAvatar.Editor",
+    "rootNamespace": "LikeOpenPoseAvatar",
+    "references": [
+        "jp.blkcatman.LikeOpenPoseAvatar"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
