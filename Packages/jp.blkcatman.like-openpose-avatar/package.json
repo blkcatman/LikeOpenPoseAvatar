@@ -1,0 +1,19 @@
+﻿{
+  "name": "com.blkcatman.like-openpose-avatar",
+  "version": "0.1.0",
+  "displayName": "LikeOpenPoseAvatar",
+  "description": "LikeOpenPoseAvatar package",
+  "unity": "2021.3",
+  "dependencies": {},
+  "keywords": [
+    "openpose"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blkcatman/LikeOpenPoseAvatar"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "blkcatman"
+  }
+}
