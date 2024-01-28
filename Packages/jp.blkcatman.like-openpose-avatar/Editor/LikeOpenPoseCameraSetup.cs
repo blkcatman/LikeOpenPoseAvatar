@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using System.Linq;
 using LikeOpenPoseAvatar.Keypoints;
 using LikeOpenPoseAvatar.UI;
@@ -15,6 +15,7 @@ namespace LikeOpenPoseAvatar.Editor
         private ObjectField cameraSelector;
         private EnumField displaySelector;
         private EnumField keypointTypeSelector;
+        private Toggle copyMaterialToggle;
         
         private string layerName = "LikeOpenPoseAvatar";
         
@@ -34,6 +35,9 @@ namespace LikeOpenPoseAvatar.Editor
             rootVisualElement.Add(displaySelector);
             keypointTypeSelector = new EnumField("Keypoint Type", KeypointType.Coco18);
             rootVisualElement.Add(keypointTypeSelector);
+            copyMaterialToggle = new Toggle("Copy Material");
+            copyMaterialToggle.value = true;
+            rootVisualElement.Add(copyMaterialToggle);
             
             var generateButton = new Button(() => OnCreatePrefab())
             {
@@ -83,6 +87,18 @@ namespace LikeOpenPoseAvatar.Editor
                         var graph = go.GetComponentInChildren<LikeOpenPoseGraph>();
                         if (graph != null)
                         {
+                            var requiredCopyMaterial = copyMaterialToggle.value;
+                            if (requiredCopyMaterial)
+                            {
+                                if(TryCopyMaterial(
+                                       graph.material,
+                                       graph.material.name,
+                                       out var copiedMaterial))
+                                {
+                                    graph.material = copiedMaterial;
+                                }
+                            }
+
                             var keypointType = (KeypointType)keypointTypeSelector.value;
                             graph.SupportedKeypointType = keypointType;
                             var avatars = FindObjectsOfType<LikeOpenPoseAvatar>();
@@ -133,6 +149,48 @@ namespace LikeOpenPoseAvatar.Editor
             if (requiredApply)
             {
                 tagManager.ApplyModifiedProperties();
+            }
+        }
+
+        private bool TryCopyMaterial(Material original, string materialName, out Material copied)
+        {
+            var guids = AssetDatabase.FindAssets(
+                $"{materialName} t:Material",
+                new[] { "Assets/LikeOpenPoseAvatar/Materials" });
+
+            if (guids.Length > 0)
+            {
+                Debug.Log($"Material {materialName} already exists in Assets/LikeOpenPoseAvatar/Materials.");
+
+                var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                copied = AssetDatabase.LoadAssetAtPath(path, typeof(Material)) as Material;
+                return true;
+            }
+            else
+            {
+                if (!Directory.Exists("Assets/LikeOpenPoseAvatar"))
+                {
+                    AssetDatabase.CreateFolder("Assets", "LikeOpenPoseAvatar");
+                }
+
+                if (!Directory.Exists("Assets/LikeOpenPoseAvatar/Materials"))
+                {
+                    AssetDatabase.CreateFolder("Assets/LikeOpenPoseAvatar", "Materials");
+                }
+
+                var copiedMaterial = Instantiate(original);
+
+                AssetDatabase.CreateAsset(copiedMaterial, $"Assets/LikeOpenPoseAvatar/Materials/{materialName}.mat");
+
+                Debug.Log($"Material {materialName} has been copied in Assets/LikeOpenPoseAvatar/Materials.");
+
+                guids = AssetDatabase.FindAssets(
+                    $"{materialName} t:Material",
+                    new[] { "Assets/LikeOpenPoseAvatar/Materials" });
+
+                var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                copied = AssetDatabase.LoadAssetAtPath(path, typeof(Material)) as Material;
+                return true;
             }
         }
 
